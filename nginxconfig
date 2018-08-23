@@ -37,7 +37,7 @@ http {
         server_name  域名;
 	# 证书(公钥.发送到客户端的)server.crt表示证书名字和后缀
         ssl_certificate /usr/local/nginx/ssl/域名.crt;
-	#私钥, server.key表示文件名称，每个学校修改位具体的名称
+	#私钥, server.key表示文件名称
         ssl_certificate_key /usr/local/nginx/ssl/域名.key;
         ssl_session_cache    shared:SSL:1m;
         ssl_session_timeout  5m;
