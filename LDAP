@@ -1,0 +1,200 @@
+>>>>>>LDAP双主配置
+ldap1:
+# See slapd.conf(5) for details on configuration options.
+# This file should NOT be world readable.
+#
+include    /usr/local/openldap/etc/openldap/schema/core.schema
+include    /usr/local/openldap/etc/openldap/schema/corba.schema
+include    /usr/local/openldap/etc/openldap/schema/cosine.schema
+include    /usr/local/openldap/etc/openldap/schema/inetorgperson.schema
+include    /usr/local/openldap/etc/openldap/schema/misc.schema
+include    /usr/local/openldap/etc/openldap/schema/openldap.schema
+include    /usr/local/openldap/etc/openldap/schema/nis.schema
+include    /usr/local/openldap/etc/openldap/schema/java.schema
+# Define global ACLs to disable default read access.
+# Do not enable referrals until AFTER you have a working directory
+# service AND an understanding of referrals.
+#referral    ldap://root.openldap.org
+pidfile        /usr/local/openldap/var/run/slapd.pid
+argsfile    /usr/local/openldap/var/run/slapd.args
+loglevel    256
+logfile    /usr/local/openldap/var/slapd.log
+# Load dynamic backend modules:
+# modulepath    /usr/local/openldap/libexec/openldap
+# moduleload    back_bdb.la
+# moduleload    back_hdb.la
+# moduleload    back_ldap.la
+# Sample security restrictions
+#    Require integrity protection (prevent hijacking)
+#    Require 112-bit (3DES or better) encryption for updates
+#    Require 63-bit encryption for simple bind
+# security ssf=1 update_ssf=112 simple_bind=64
+# Sample access control policy:
+#    Root DSE: allow anyone to read it
+#    Subschema (sub)entry DSE: allow anyone to read it
+#    Other DSEs:
+#        Allow self write access
+#        Allow authenticated users read access
+#        Allow anonymous users to authenticate
+#    Directives needed to implement policy:
+# access to dn.base="" by * read
+# access to dn.base="cn=Subschema" by * read
+# access to *
+#    by self write
+#    by users read
+#    by anonymous auth
+#
+# if no access controls are present, the default policy
+# allows anyone and everyone to read anything but restricts
+# updates to rootdn.  (e.g., "access to * by * read")
+#
+# rootdn can always read and write EVERYTHING!
+#######################################################################
+# BDB database definitions
+#######################################################################
+database    bdb
+#maxsize    1073741824
+suffix        "dc=test,dc=com"
+rootdn        "cn=Manager,dc=test,dc=com"
+# Cleartext passwords, especially for the rootdn, should
+# be avoid.  See slappasswd(8) and slapd.conf(5) for details.
+# Use of strong authentication encouraged.
+rootpw    {SSHA}ZZZZZZZZZZZZXXXXXXXXXXXXZZZZZZZZZZ
+# The database directory MUST exist prior to running slapd AND 
+# should only be accessible by the slapd and slap tools.
+# Mode 700 recommended.
+directory    /usr/local/openldap/var/openldap-data
+# Indices to maintain
+index    objectClass,entryCSN,entryUUID    eq
+#双主配置
+overlay    syncprov
+syncprov-checkpoint    100    1
+syncprov-sessionlog    100
+serverID    2
+syncrepl    rid=123
+    provider=ldap://对端IP
+    bindmethod=simple
+    binddn="cn=Manager,dc=test,dc=com"
+    credentials=123456
+    searchbase="dc=test,dc=com"
+    schemachecking=off
+    type=refreshAndPersist
+    retry="60    +"
+mirrormode    on
+
+
+
+
+ldap1:
+# See slapd.conf(5) for details on configuration options.
+# This file should NOT be world readable.
+#
+include    /usr/local/openldap/etc/openldap/schema/core.schema
+include    /usr/local/openldap/etc/openldap/schema/collective.schema
+include    /usr/local/openldap/etc/openldap/schema/corba.schema
+include    /usr/local/openldap/etc/openldap/schema/cosine.schema
+include    /usr/local/openldap/etc/openldap/schema/duaconf.schema
+include    /usr/local/openldap/etc/openldap/schema/dyngroup.schema
+include    /usr/local/openldap/etc/openldap/schema/inetorgperson.schema
+include    /usr/local/openldap/etc/openldap/schema/java.schema
+include    /usr/local/openldap/etc/openldap/schema/misc.schema
+include    /usr/local/openldap/etc/openldap/schema/nis.schema
+include    /usr/local/openldap/etc/openldap/schema/openldap.schema
+include    /usr/local/openldap/etc/openldap/schema/pmi.schema
+include    /usr/local/openldap/etc/openldap/schema/ppolicy.schema
+# Define global ACLs to disable default read access.
+# Do not enable referrals until AFTER you have a working directory
+# service AND an understanding of referrals.
+#referral    ldap://root.openldap.org
+pidfile        /usr/local/openldap/var/run/slapd.pid
+argsfile    /usr/local/openldap/var/run/slapd.args
+loglevel    256
+logfile    /usr/local/openldap/var/slapd.log
+# Load dynamic backend modules:
+#modulepath    /usr/local/openldap/libexec/openldap
+#moduleload    back_bdb.la
+#moduleload    back_hdb.la
+#moduleload    back_ldap.la
+# Sample security restrictions
+#    Require integrity protection (prevent hijacking)
+#    Require 112-bit (3DES or better) encryption for updates
+#    Require 63-bit encryption for simple bind
+# security ssf=1 update_ssf=112 simple_bind=64
+# Sample access control policy:
+#    Root DSE: allow anyone to read it
+#    Subschema (sub)entry DSE: allow anyone to read it
+#    Other DSEs:
+#        Allow self write access
+#        Allow authenticated users read access
+#        Allow anonymous users to authenticate
+#    Directives needed to implement policy:
+# access to dn.base="" by * read
+# access to dn.base="cn=Subschema" by * read
+# access to *
+#    by self write
+#    by users read
+#    by anonymous auth
+#
+# if no access controls are present, the default policy
+# allows anyone and everyone to read anything but restricts
+# updates to rootdn.  (e.g., "access to * by * read")
+#
+# rootdn can always read and write EVERYTHING!
+#######################################################################
+# BDB database definitions
+#######################################################################
+database    bdb
+suffix        "dc=test,dc=com"
+rootdn        "cn=Manager,dc=test,dc=com"
+# Cleartext passwords, especially for the rootdn, should
+# be avoid.  See slappasswd(8) and slapd.conf(5) for details.
+# Use of strong authentication encouraged.
+rootpw    {SSHA}zzzzzzzzzzzzzzsssssssssssszzz
+# The database directory MUST exist prior to running slapd AND 
+# should only be accessible by the slapd and slap tools.
+# Mode 700 recommended.
+directory    /usr/local/openldap/var/openldap-data
+# Indices to maintain
+index    objectClass,entryCSN,entryUUID    eq
+# 复制引擎
+overlay    syncprov
+# 操作100次同步一次，或者1分钟同步一次
+syncprov-checkpoint    100    1
+syncprov-sessionlog    100
+# 节点ID,唯一
+serverID    1
+syncrepl    rid=123
+    provider=ldap://对端IP
+    bindmethod=simple
+    binddn="cn=Manager,dc=test,dc=com" 
+    credentials=123456 
+    searchbase="dc=test,dc=com"
+    schemachecking=off  
+    type=refreshAndPersist  
+    retry="60 +"  
+mirrormode on
+
+
+
+
+>>>>>>导入脚本格式： test.ldif(注：每行冒号后有空格)
+dn: dc=test,dc=com
+dc: xitldap
+description: dCorporation
+objectClass: dcObject
+objectClass: organization
+o: Corporation
+dn: ou=teacher,dc=test,dc=com
+objectClass: top
+objectClass: organizationalUnit
+dn: uid=001,ou=teacher,dc=test,dc=com
+objectClass: uidObject
+objectClass: account
+objectClass: top
+objectClass: simpleSecurityObject
+uid: 001
+userPassword: 123456
+
+
+>>>>>>导入命令：
+ldapadd -x -D "cn=Manager,dc=test,dc=com" -W -f test.ldif
